@@ -9,7 +9,9 @@ Firstly committed by JunbeomKang on 2023/06/07
 ### Reference
 skeleton code for Project4 -
 <https://github.com/nclab-kaist/cs330-project4-skeleton>
+
 Google Codelabs about audio classification -
 <https://github.com/googlecodelabs/odml-pathways/tree/main/audio_classification>
+
 Google Codelabs for basic Android Developers - 
 <https://developer.android.com/courses/fundamentals-training/toc-v2?hl=ko>
