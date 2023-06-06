@@ -1,18 +1,11 @@
 <resources>
     <string name="app_name">Don\'t fall!</string>
-
     <string name="button_label_monitoring_start">Start Monitoring</string>
     <string name="button_label_monitoring_stop">Stop Monitoring</string>
     <string name="button_label_help">Help!</string>
-
     <string name="status_initial_value">Status</string>
     <string name="display_off">Don\'t fall! : Off</string>
     <string name="display_on">Don\'t fall! : On</string>
-
     <string name="detect_fall">Are You Okay?\n\nScilence\nor\nScreaming\nwill call 911</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
-
+    <string name="EMERGENCY">EMERGENCY\n\nSEND LOCANTION TO 911</string>
 </resources>
