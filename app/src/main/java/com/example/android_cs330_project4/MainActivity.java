@@ -1,6 +1,8 @@
 package com.example.android_cs330_project4;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,7 +18,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import org.checkerframework.checker.units.qual.A;
 import org.tensorflow.lite.support.audio.TensorAudio;
 import org.tensorflow.lite.support.label.Category;
 import org.tensorflow.lite.task.audio.classifier.AudioClassifier;
@@ -30,8 +35,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /**
      * Variable for Permissions
      */
-    private String[] permissions = new String[]{"android.Manifest.permission.RECORD_AUDIO"};
-    private int PERMISSIONS_REQUEST = 1;
+    public String[] permissions = new String[]{"Manifest.permission.RECORD_AUDIO"};
+    private int PERMISSIONS_REQUEST = 0x0000001;
 
     /**
      * Variable for silence classification
@@ -39,6 +44,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String YAMNET_MODEL = "lite-model_yamnet_classification_tflite_1.tflite";
     private static final float SOUND_THRESHOLD = (float) 0.5;
     private AudioRecord recorder = null;
+    private long REFRESH_INTERVAL_MS = 1000L;
+    private long NUMBER_OF_ITERATION = 20;
+    private long ENTIRE_TIME = REFRESH_INTERVAL_MS * NUMBER_OF_ITERATION;
     public int Silence_Count = 0;
     public int Classifications_Count = 0;
 
@@ -86,9 +94,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         /**
          * Initialization for sensor, timer, and permission requesting
          */
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_DENIED)
+            requestPermissions (new String[]{Manifest.permission.RECORD_AUDIO}, 1);
         setUpSensorStuff();
         CountDownTimerInit();
-        requestPermissions(permissions, PERMISSIONS_REQUEST);
+
     }
 
     /**
@@ -110,11 +121,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * This is for repeating sound classification later
      */
     public void CountDownTimerInit() {
-        countDownTimer = new CountDownTimer(20000, 1000) {
+        countDownTimer = new CountDownTimer(ENTIRE_TIME, REFRESH_INTERVAL_MS) {
             // Executed at every timer interrupt
             public void onTick(long millisUntilFinished) {
                 startAudioClassification();
-//                _display_onoff.setText(String.format("Count : %d %d", Silence_Count, Classifications_Count));
+               // _display_onoff.setText(String.format("Count : %d %d", Silence_Count, Classifications_Count));
                 String progress = "Detecting Sound .";
                 for (int i = 0; i < Classifications_Count % 4; i++) progress += " .";
                 _display_onoff.setText(progress);
@@ -147,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     solve();
                 }
             }
-        }, 20000);
+        }, ENTIRE_TIME);
 
     }
 
@@ -259,7 +270,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             float rad_z = event.values[2];
 
             // can be changed into just picture
-            _status_log.setText(String.format("GYROSCOPE INFO\n\nangular v_x:\n%.3f rad/s\nangular v_y:\n%.3f rad/s\nangular v_z:\n%.3f rad/s\n", rad_x, rad_y, rad_z));
+            _status_log.setText(String.format(
+                    "GYROSCOPE INFO\n\n" +
+                    "angv_x: %.2f rad/s\n" +
+                    "angv_y: %.2f rad/s\n" +
+                    "angv_z: %.2f rad/s\n", rad_x, rad_y, rad_z));
             _status_log.setTextSize(40);
 
             if (sensor_threshold < Math.pow(rad_x, 2) + Math.pow(rad_z, 2)) {
