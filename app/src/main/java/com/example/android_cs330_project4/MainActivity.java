@@ -1,5 +1,6 @@
 package com.example.android_cs330_project4;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -10,12 +11,15 @@ import android.hardware.SensorManager;
 import android.media.AudioRecord;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -28,6 +32,7 @@ import org.tensorflow.lite.task.audio.classifier.Classifications;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -36,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /**
      * Variable for Permissions
      */
-    public String[] permissions = new String[]{"Manifest.permission.RECORD_AUDIO"};
+    public String[] permissions = new String[] {Manifest.permission.RECORD_AUDIO, Manifest.permission.SEND_SMS};
 
     /**
      * Variable for silence classification
@@ -48,9 +53,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final long NUMBER_OF_ITERATION = 10;
     private final long ENTIRE_TIME = REFRESH_INTERVAL_MS * NUMBER_OF_ITERATION;
 
+    /**
+     * Variable for count classification
+     */
     public int Silence_Count = 0;
     public int Classifications_Count = 0;
-    public int Screaming_Count = 0;
+    public int Speech_Count = 0;
 
     /**
      * Variable for current state
@@ -64,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView _display_onoff;
     private TextView _status_log;
     private Button _onoff;
+    private Button _info;
     private Button _help;
     private ConstraintLayout _Background;
 
@@ -77,6 +86,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      */
     public CountDownTimer countDownTimer;
 
+    /**
+     * Variable for Sending SMS
+     */
+    String phoneNo = "01012345678";
+    String message = "EMERGENCY!";
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,15 +102,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         _display_onoff = findViewById(R.id.display_onoff);
         _status_log = findViewById(R.id.status);
         _onoff = findViewById(R.id.button_monitoring_onoff);
+        _info = findViewById(R.id.button_info);
         _help = findViewById(R.id.button_help);
-        _Background = findViewById(R.id.Backgroud);
+        _help.setEnabled(false);
+        _help.setTextColor(getColor((R.color.white)));
+        _Background = findViewById(R.id.Background);
 
         // Initialization for sensor, timer, and permission requesting
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(this, permission)
                     == PackageManager.PERMISSION_DENIED) {
                 requestPermissions (permissions, 1);
-                break;
             }
         }
         setUpSensorStuff();
@@ -134,14 +152,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 @SuppressLint("DefaultLocale")
                 String result = String.format(
                         "# Silence number = %d\n" +
-                        "# Screaming number = %d",
-                        Silence_Count, Screaming_Count);
+                        "# Speech number = %d",
+                        Silence_Count, Speech_Count);
                 Toast.makeText (getApplicationContext(), result, Toast.LENGTH_LONG).show();
 
                 Log.d(TAG," Detection Finished.");
                 stopAudioClassification();
 
-                if ((Silence_Count + Screaming_Count) > NUMBER_OF_ITERATION * 0.75 &&  _help.getText().toString().equals("I'm OK")) {help();}
+                if ((Silence_Count - Speech_Count) > NUMBER_OF_ITERATION * 0.6 &&  _help.getText().toString().equals("I'm OK")) {help();}
                 else {solve();}
             }
         };
@@ -177,28 +195,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             Classifications_Count++;
             float silence_score = -1;
-            float screaming_score = -1;
+            float speech_score = -1;
             for (Category c : filterModelOutput) {
                 if (c.getLabel().equals("Silence")) {
                     Log.d(TAG, " label : " + c.getLabel() + " | score : " + c.getScore() + " (Iteration " + Classifications_Count + ")");
                     silence_score = c.getScore();
-                    if (silence_score > SOUND_THRESHOLD && screaming_score != -1 && silence_score > screaming_score) {
+                    if (silence_score > SOUND_THRESHOLD && speech_score != -1 && silence_score > speech_score) {
                         Silence_Count++;
                         break;
                     }
-                    else if (screaming_score > SOUND_THRESHOLD && screaming_score > silence_score) {
-                        Screaming_Count++;
+                    else if (speech_score > SOUND_THRESHOLD && speech_score > silence_score) {
+                        Speech_Count++;
                         break;
                     }
                 }
                 else if (c.getLabel().equals("Speech")) {
                     Log.d(TAG, " label : " + c.getLabel() + " | score : " + c.getScore() + " (Iteration " + Classifications_Count + ")");
-                    screaming_score = c.getScore();
-                    if (screaming_score > SOUND_THRESHOLD && silence_score != -1 && screaming_score > silence_score) {
-                        Screaming_Count++;
+                    speech_score = c.getScore();
+                    if (speech_score > SOUND_THRESHOLD && silence_score != -1 && speech_score > silence_score) {
+                        Speech_Count++;
                         break;
                     }
-                    else if (silence_score > SOUND_THRESHOLD && silence_score > screaming_score ) {
+                    else if (silence_score > SOUND_THRESHOLD && silence_score > speech_score ) {
                         Silence_Count++;
                         break;
                     }
@@ -219,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     /**
-     * Button Control for upper button
+     * Button Control for _onoff button
      */
     public void monitoring_onoff(View view) {
         // If monitoring is on, and try to off monitoring
@@ -227,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             is_monitoring = false;
             is_fall_detected = false;
             Silence_Count = 0;
-            Screaming_Count = 0;
+            Speech_Count = 0;
             Classifications_Count = 0;
             normal_ui_setup();
 
@@ -240,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     /**
-     * Button Control for lower button
+     * Button Control for _help button
      * It has different behavior depend on current state
      */
     public void emergency(View view) {
@@ -254,12 +272,59 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     /**
+     * Button Control for information button
+     * It has different behavior depend on current state
+     */
+    public void register_information(View view) {
+
+        AlertDialog.Builder popup1 = new AlertDialog.Builder(this);
+
+        popup1.setIcon(R.mipmap.ic_launcher);
+        popup1.setTitle("Input phone number");
+        popup1.setMessage("Input phone number without \"-\"\nWrong format number will not saved");
+
+        AlertDialog.Builder popup2 = new AlertDialog.Builder(this);
+        popup2.setIcon(R.mipmap.ic_launcher);
+        popup2.setTitle("Input message.");
+        popup2.setMessage("Input message to send.\nChanges will not save if not press \"Save\"");
+
+        final EditText phone_number_blank = new EditText(this);
+        phone_number_blank.setHint(phoneNo);
+        popup1.setView(phone_number_blank);
+
+        final EditText message_number_blank = new EditText(this);
+        message_number_blank.setHint(message);
+        popup2.setView(message_number_blank);
+
+        popup1.setPositiveButton("cancel", (dialog, which) -> dialog.dismiss());
+
+        popup1.setNegativeButton("Next", (dialog, which) -> popup2.show());
+
+        popup2.setPositiveButton("cancel", (dialog, which) -> dialog.dismiss());
+
+        popup2.setNegativeButton("Save", (dialog, which) -> {
+            message = message_number_blank.getText().toString();
+            String tmp = phone_number_blank.getText().toString();
+            if (Pattern.matches ("^[0-9]*$", tmp) && (tmp.length() == 3 || tmp.length() == 11))
+                phoneNo = tmp;
+            dialog.dismiss();
+        });
+
+        popup1.show();
+    }
+
+    /**
      * Function for handling emergency situation
      */
     public void help() {
         is_fall_detected = true;
         emergency_ui_setup();
+
         // Emergency Behavior Implementation
+        SmsManager sms = SmsManager.getDefault();
+        sms.sendTextMessage(phoneNo, null, message, null, null);
+
+        Toast.makeText(this,"sending message complete", Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -271,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         Classifications_Count = 0;
         Silence_Count = 0;
-        Screaming_Count = 0;
+        Speech_Count = 0;
     }
 
     /**
@@ -319,6 +384,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         _onoff.setBackgroundColor(getColor(R.color.blue));
         _onoff.setTextColor(getColor((R.color.white)));
 
+        _info.setBackgroundColor(getColor(R.color.blue));
+        _info.setTextColor(getColor((R.color.white)));
+
         _help.setBackgroundColor(getColor((R.color.blue)));
         _help.setTextColor(getColor((R.color.white)));
         _help.setText(R.string.button_label_help);
@@ -343,6 +411,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         _onoff.setText(R.string.button_label_monitoring_stop);
         _onoff.setBackgroundColor(getColor(R.color.red));
         _onoff.setTextColor(getColor((R.color.white)));
+
+        _info.setBackgroundColor(getColor(R.color.red));
+        _info.setTextColor(getColor((R.color.white)));
+        _info.setEnabled(true);
 
         _help.setBackgroundColor(getColor((R.color.red)));
         _help.setTextColor(getColor((R.color.white)));
@@ -373,6 +445,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         _onoff.setBackgroundColor(getColor((R.color.white)));
         _onoff.setTextColor(getColor((R.color.red)));
 
+        _info.setBackgroundColor(getColor((R.color.white)));
+        _info.setTextColor(getColor((R.color.red)));
+        _info.setEnabled(true);
+
         _help.setBackgroundColor(getColor((R.color.white)));
         _help.setTextColor(getColor((R.color.red)));
         _help.setText(R.string.label_OK);
@@ -400,6 +476,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         _onoff.setTextColor(getColor((R.color.rred)));
         _onoff.setBackgroundColor(getColor((R.color.white)));
+
+        _info.setTextColor(getColor((R.color.rred)));
+        _info.setBackgroundColor(getColor((R.color.white)));
+        _info.setEnabled(false);
 
         _help.setTextColor(getColor((R.color.rred)));
         _help.setBackgroundColor(getColor((R.color.white)));

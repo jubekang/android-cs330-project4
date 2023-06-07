@@ -11,10 +11,7 @@
         tools:remove="android.maxSdkVersion"
         />
 
-    <uses-permission
-        android:name="android.permission.SEND_SMS"
-        />
-
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"

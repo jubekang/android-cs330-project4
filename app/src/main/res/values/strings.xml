@@ -2,6 +2,7 @@
     <string name="app_name">Don\'t fall!</string>
     <string name="button_label_monitoring_start">Start Monitoring</string>
     <string name="button_label_monitoring_stop">Stop Monitoring</string>
+    <string name="button_label_input_information">information</string>
     <string name="button_label_help">Help!</string>
     <string name="label_Fall">Fall!</string>
     <string name="label_OK">I\'m OK</string>
