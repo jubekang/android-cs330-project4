@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Log.d(TAG," Detection Finished.");
                 stopAudioClassification();
 
-                if ((Silence_Count - Speech_Count) > NUMBER_OF_ITERATION * 0.6 &&  _help.getText().toString().equals("I'm OK")) {help();}
+                if ((Silence_Count - 2 * Speech_Count) > NUMBER_OF_ITERATION * 0.6 &&  _help.getText().toString().equals("I'm OK")) {help();}
                 else {solve();}
             }
         };
@@ -358,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     "angv_z: %.2f rad/s\n", rad_x, rad_y, rad_z));
             _status_log.setTextSize(40);
 
-            float SENSOR_THRESHOLD = 40;
+            float SENSOR_THRESHOLD = 35;
             if (SENSOR_THRESHOLD < Math.pow(rad_x, 2) + Math.pow(rad_z, 2)) {
                 is_fall_detected = true;
                 fall_detected_ui_setup();
@@ -434,6 +434,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /**
      * display mode change to fall_detected mode
      */
+    @SuppressLint("SetTextI18n")
     private void fall_detected_ui_setup() {
         _status_log.setTextColor(getColor((R.color.white)));
 
@@ -456,17 +457,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         _Background.setBackgroundColor(getColor((R.color.red)));
 
         _status_log.setTextSize(50);
-        _status_log.setText(R.string.detect_fall);
+        _status_log.setText("Are You Okay?\n\n\"Silence\"\nwill call \n" + phoneNo);
     }
 
     /**
      * display mode change to emergency mode
      */
+    @SuppressLint("SetTextI18n")
     private void emergency_ui_setup() {
         _Background.setBackgroundColor(getColor((R.color.rred)));
 
-        _status_log.setTextSize(55);
-        _status_log.setText(R.string.EMERGENCY);
+        _status_log.setTextSize(50);
+        _status_log.setText("EMERGENCY!\n\nSEND\nMESSAGE\nTO\n" + phoneNo);
         _status_log.setTextColor(getColor((R.color.white)));
 
         _display_onoff.setText(R.string.label_Fall);
