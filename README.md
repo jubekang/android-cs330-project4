@@ -1,8 +1,8 @@
+# CS330 Project 4: Emerging System : Don't fall!
+
 <p align="center">
   <img src="https://github.com/jubekang/android-cs330-project4/assets/105722279/bba22dec-a1f3-4cfa-82ef-a318b8a86d05">
 </p>
-
-# CS330 Project 4: Emerging System
 
 ### Application for Preventing Solitary Death of Elderly
 Firstly committed by JunbeomKang on 2023/06/07
