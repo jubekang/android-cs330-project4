@@ -11,15 +11,20 @@ Firstly committed by JunbeomKang on 2023/06/07
 > Tested based on AVD Pixel 5 API 33 (Android 13.0)
 
 ### Demo Video Link
-Link -
-<https://drive.google.com/file/d/1tQdT5sBsv0fABel3RIQSPKLhaGVzbb1z/view?usp=sharing>
+> <https://drive.google.com/file/d/1tQdT5sBsv0fABel3RIQSPKLhaGVzbb1z/view?usp=sharing>
 
 ### Reference
-skeleton code for Project4 -
-<https://github.com/nclab-kaist/cs330-project4-skeleton>
+#### skeleton code for Project4
+> <https://github.com/nclab-kaist/cs330-project4-skeleton>
 
-Google Codelabs about audio classification -
-<https://github.com/googlecodelabs/odml-pathways/tree/main/audio_classification>
+#### Information about IMU sensor
+> <https://developer.android.com/guide/topics/sensors/sensors_motion?hl=ko>
 
-Google Codelabs for basic Android Developers - 
-<https://developer.android.com/courses/fundamentals-training/toc-v2?hl=ko>
+#### Information about YAMNET
+> <https://www.tensorflow.org/hub/tutorials/yamnet?hl=ko>
+
+#### Google Codelabs about audio classification
+> <https://github.com/googlecodelabs/odml-pathways/tree/main/audio_classification>
+
+#### Google Codelabs for basic Android Developers
+> <https://developer.android.com/courses/fundamentals-training/toc-v2?hl=ko>
