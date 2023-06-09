@@ -12,7 +12,7 @@ Firstly committed by JunbeomKang on 2023/06/07
 
 ### Demo Video Link
 Link -
-<https://github.com/jubekang/android-cs330-project4/issues/1>
+<https://drive.google.com/file/d/1tQdT5sBsv0fABel3RIQSPKLhaGVzbb1z/view?usp=sharing>
 
 ### Reference
 skeleton code for Project4 -
