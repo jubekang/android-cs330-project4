@@ -47,9 +47,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * Variable for silence classification
      */
     private static final String YAMNET_MODEL = "lite-model_yamnet_classification_tflite_1.tflite";
-    private static final float SOUND_THRESHOLD = (float) 0.5;
+    private static final float SOUND_THRESHOLD = (float) 0.4;
     private AudioRecord recorder = null;
-    private final long REFRESH_INTERVAL_MS = 1000L;
+    private final long REFRESH_INTERVAL_MS = 100L;
     private final long NUMBER_OF_ITERATION = 10;
     private final long ENTIRE_TIME = REFRESH_INTERVAL_MS * NUMBER_OF_ITERATION;
 
@@ -128,8 +128,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (sensor != null) {
             sensorManager.registerListener(this,
                     sensor,
-                    SensorManager.SENSOR_DELAY_GAME,
-                    SensorManager.SENSOR_DELAY_GAME);
+                    SensorManager.SENSOR_DELAY_NORMAL,
+                    SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Log.d(TAG," Detection Finished.");
                 stopAudioClassification();
 
-                if ((Silence_Count - 2 * Speech_Count) > NUMBER_OF_ITERATION * 0.5 &&  _help.getText().toString().equals("I'm OK")) {help();}
+                if ((Silence_Count - 2 * Speech_Count) >= NUMBER_OF_ITERATION * 0.5 &&  _help.getText().toString().equals("I'm OK")) {help();}
                 else {solve();}
             }
         };
@@ -305,10 +305,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         popup2.setPositiveButton("cancel", (dialog, which) -> dialog.dismiss());
 
         popup2.setNegativeButton("Save", (dialog, which) -> {
-            message = message_number_blank.getText().toString();
+            if (!message_number_blank.getText().toString().equals(""))
+                message = message_number_blank.getText().toString();
             String tmp = phone_number_blank.getText().toString();
             if (Pattern.matches ("^[0-9]*$", tmp) && (tmp.length() == 3 || tmp.length() == 11))
-                phoneNo = tmp;
+                phoneNo = phone_number_blank.getText().toString();
             dialog.dismiss();
         });
 
