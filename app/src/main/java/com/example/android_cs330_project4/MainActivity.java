@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /**
      * Variable for Timer
      */
-    public CountDownTimer countDownTimer;
+    public CountDownTimer countDownTimer = null;
 
     /**
      * Variable for Sending SMS
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Log.d(TAG," Detection Finished.");
                 stopAudioClassification();
 
-                if ((Silence_Count - 2 * Speech_Count) > NUMBER_OF_ITERATION * 0.6 &&  _help.getText().toString().equals("I'm OK")) {help();}
+                if ((Silence_Count - 2 * Speech_Count) > NUMBER_OF_ITERATION * 0.5 &&  _help.getText().toString().equals("I'm OK")) {help();}
                 else {solve();}
             }
         };
@@ -242,6 +242,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void monitoring_onoff(View view) {
         // If monitoring is on, and try to off monitoring
         if (is_monitoring) {
+            if (countDownTimer != null)
+                countDownTimer.cancel();
             is_monitoring = false;
             is_fall_detected = false;
             Silence_Count = 0;
@@ -386,6 +388,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         _info.setBackgroundColor(getColor(R.color.blue));
         _info.setTextColor(getColor((R.color.white)));
+        _info.setEnabled(true);
 
         _help.setBackgroundColor(getColor((R.color.blue)));
         _help.setTextColor(getColor((R.color.white)));
@@ -448,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         _info.setBackgroundColor(getColor((R.color.white)));
         _info.setTextColor(getColor((R.color.red)));
-        _info.setEnabled(true);
+        _info.setEnabled(false);
 
         _help.setBackgroundColor(getColor((R.color.white)));
         _help.setTextColor(getColor((R.color.red)));
