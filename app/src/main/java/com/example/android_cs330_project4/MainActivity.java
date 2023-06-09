@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String YAMNET_MODEL = "lite-model_yamnet_classification_tflite_1.tflite";
     private static final float SOUND_THRESHOLD = (float) 0.4;
     private AudioRecord recorder = null;
-    private final long REFRESH_INTERVAL_MS = 100L;
+    private final long REFRESH_INTERVAL_MS = 1000L;
     private final long NUMBER_OF_ITERATION = 10;
     private final long ENTIRE_TIME = REFRESH_INTERVAL_MS * NUMBER_OF_ITERATION;
 
