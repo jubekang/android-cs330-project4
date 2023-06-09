@@ -242,8 +242,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void monitoring_onoff(View view) {
         // If monitoring is on, and try to off monitoring
         if (is_monitoring) {
-            if (countDownTimer != null)
+            if (countDownTimer != null) {
                 countDownTimer.cancel();
+                stopAudioClassification();
+            }
+
             is_monitoring = false;
             is_fall_detected = false;
             Silence_Count = 0;
